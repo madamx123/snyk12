@@ -1,0 +1,39 @@
+name: Snyk container Scan
+
+on:
+	workflow_dispatch:
+	push:
+		branches:[main]
+	pull_request:
+		branches:[main]
+
+jobs:
+	snyk-scan:
+		runs-on:ubuntu-latest
+
+		steps:
+		 -name:Install Snyk
+		  run:|
+		   npm install snyk -g
+		   snyk -v
+		   snyk auth${{secrets.snyk_token}}
+
+
+		 -name Run snky test and install snyk-to-html
+		   run: |
+		    echo: "Intall snyk html"
+		    npm install snyk-to-html -g
+		    echo: "Intall snyk scan"
+		    snyk container test debian --jason | snyk-to-htmk -o result.html
+		    mkdir downloads
+		    pwd
+		    sp -v result.htmk /home/runner/work/*/*/downloads
+		    snyk container monitor debian
+        
+        
+         - name: Use the upload artifacts
+		   uses: action/upload-artifact@v2
+		   with:
+			name: results
+			path: download
+
